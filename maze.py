@@ -23,18 +23,18 @@ def move(position, action):
     wall = maze[x][y]
 
     if action == 'up' and wall[0] == 0 and x > 0:
-        x -= 1
+        x = x- 1
     elif action == 'right' and wall[1] == 0 and y < maze_size - 1:
-        y += 1
+        y = y+ 1
     elif action == 'down' and wall[2] == 0 and x < maze_size - 1:
-        x += 1
+        x = x + 1
     elif action == 'left' and wall[3] == 0 and y > 0:
-        y -= 1
+        y = y - 1
     else:
         return [position[0], position[1]], -5  # penalty for hitting wall
 
     if [x, y] == goal:
-        return [x, y], 10  # goal reached
+        return [x, y], 10  # goal reached award 10 points
     else:
         return [x, y], -1  # normal move cost
 
@@ -44,10 +44,11 @@ def get_q(state, action):
 def update_q(state, action, reward, next_state, alpha=0.1, gamma=0.9):
     max_next_q = max([get_q(next_state, a) for a in actions])
     current_q = get_q(state, action)
-    new_q = current_q + alpha * (reward + gamma * max_next_q - current_q)
+    new_q = current_q + alpha * (reward + gamma * max_next_q - current_q) #alpha --> How fast you learn
+                                                                          #gamma --> How far ahead you plan
     Q[(tuple(state), action)] = new_q
 
-def choose_action(state, epsilon=0.3):
+def choose_action(state, epsilon = max(0.1, 0.9 * (0.99 ** episode)) ): # decay over time, learning faster, explores early, exploit later.
     if random.random() < epsilon:
         return random.choice(actions)
     else:
